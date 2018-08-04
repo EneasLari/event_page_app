@@ -4,6 +4,7 @@ var formidable = require('formidable');
 var path=require("path");
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var bcrypt = require('bcrypt');
 var fs=require('fs');
 var app = express();
 var port = 3000;
@@ -34,7 +35,7 @@ var User=mongoose.model("User",userSchema);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( express.static( "public" ) );
-app.use(session({secret: 'keyboard cat'}))
+app.use(session({secret: 'keyboard cat',saveUninitialized: true, resave: true,}))
 
 
 app.set('views',path.join(__dirname,'views'));
@@ -71,26 +72,38 @@ app.post("/addevent", (req, res) => {
 });
 
 app.post("/signup", (req, res) => {
-	var userData = new User(req.body);
-	userData.save()
-		.then(item => {	
-		req.session.user = req.body;
-		res.redirect('/');
-		})
-		.catch(err => {
-		res.status(400).send("unable to save to database ");
-	});	
+	bcrypt.hash(req.body.password, 10, function(err, hash) {
+		var datatostore={username:req.body.username,email:req.body.email,password:hash}
+		var userData = new User(datatostore);
+		userData.save()
+			.then(item => {	
+			req.session.user = req.body;
+			res.redirect('/');
+			})
+			.catch(err => {
+			res.status(400).send("unable to save to database ");
+		});		  // Store hash in database
+	});
+
 });
-app.post("/login", (req, res) => {
+app.post("/login", (req, res) => {	
 	// find each person with a last name matching 'Ghost', selecting the `name` and `occupation` fields
-	User.findOne({ 'email': req.body.email , 'password':req.body.password}, function (err, user) {
+	User.findOne({ 'email': req.body.email}, function (err, user) {
 	  if (err) throw err;
 		if(user!=null){
 			req.session.user=user;
-			console.log("Correct! ="+req.session.user);
-			res.redirect('/');
+			console.log("Email Found! "+req.session.user);
+			bcrypt.compare(req.body.password, user.password, function(err, res2) {
+				if(res2) {
+				   	console.log("Correct Password!");
+				   	res.redirect('/');
+				} else {
+				   	console.log("Wrong Password");
+				   	res.redirect('/login');
+				} 
+			});								
 		}else{
-			console.log("Wrong!!");
+			console.log("This email is wrong");
 			res.redirect('/login');
 		}
 	});
