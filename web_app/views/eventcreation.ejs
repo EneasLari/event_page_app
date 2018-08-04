@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <title><%=title%></title>
+ </head>
+ 
+ <body>
+ 	<h1><%=headline%></h1>
+	<form method="post" action="/addevent" enctype="multipart/form-data">
+		<label>Name of event</label><br>
+		<input type="text" name="nameofevent" placeholder="Enter name of event..." required><br>
+		<label>Place</label><br>
+		<input type="text" name="place" placeholder="Enter place..." required><br>
+		<label>Date</label><br>
+		<input type="date" name="date" required><br>
+		<label>Image</label><br>
+		<input type="file" name="image" multiple><br>
+		<label>Description</label><br>
+		<textarea rows="10" cols="50" name="comments" required></textarea><br>	
+		<label>Rules(Put "," between rules)</label><br>
+		<textarea rows="10" cols="50" name="rules" required></textarea><br>	
+		<input type="submit" value="Add Event">	
+	</form>
+ </body>
+</html>
