@@ -21,7 +21,7 @@ var eventSchema = new mongoose.Schema({
  comments: String,
  rules: String,
  email:String
-});
+})
 
 var userSchema=new mongoose.Schema({
 	username:String,
@@ -31,6 +31,7 @@ var userSchema=new mongoose.Schema({
  
 var Event = mongoose.model("Event", eventSchema);
 var User=mongoose.model("User",userSchema);
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -72,20 +73,28 @@ app.post("/addevent", (req, res) => {
 });
 
 app.post("/signup", (req, res) => {
-	bcrypt.hash(req.body.password, 10, function(err, hash) {
-		var datatostore={username:req.body.username,email:req.body.email,password:hash}
-		var userData = new User(datatostore);
-		userData.save()
-			.then(item => {	
-			req.session.user = req.body;
-			res.redirect('/');
-			})
-			.catch(err => {
-			res.status(400).send("unable to save to database ");
-		});		  // Store hash in database
+	User.findOne({$or:[{'email':req.body.email},{'username':req.body.username}]},function(err,username){
+		if (err) throw err;
+		if(username!=null){
+			req.session.fail="Username or email already Exists!"
+			res.redirect('/signup');
+		}else{
+			bcrypt.hash(req.body.password, 10, function(err, hash) {
+				var datatostore={username:req.body.username,email:req.body.email,password:hash}
+				var userData = new User(datatostore);
+				userData.save()
+					.then(item => {	
+					req.session.user = req.body;
+					res.redirect('/');
+					})
+					.catch(err => {
+					res.status(400).send("unable to save to database ");
+				});		  // Store hash in database
+			});
+		}
 	});
-
 });
+
 app.post("/login", (req, res) => {	
 	// find each person with a last name matching 'Ghost', selecting the `name` and `occupation` fields
 	User.findOne({ 'email': req.body.email}, function (err, user) {
@@ -110,22 +119,32 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/eventcreation", (req, res) => {
-	 res.render('eventcreation',{title:"CreateEvent",headline:"Create event with your Terms"});
+	if(req.session.user==null || req.session.user.username=="Login/Signup"){
+		res.render('login',{});
+	}else{
+	 	res.render('eventcreation',{title:"CreateEvent",headline:"Create event with your Terms"});	
+	}	
 });
 
 app.get("/login", (req, res) => {
 	 res.render('login',{});
 });
 app.get("/signup", (req, res) => {
-	 res.render('signup',{});
+	if(req.session.fail==null){
+		req.session.fail=""
+	}
+	res.render('signup',{fail:req.session.fail});
 });
 
 app.get("/", (req, res) => {
+	if(req.session.user==null){
+		req.session.user={username:"Login/Signup",email:"",password:""}
+	}
 	Event.find({},function(err,doc){
 		if(err){
 			console.log("ERROR")
 		}
-		res.render('eventsView',{title:"All Events",eventview:doc});
+		res.render('eventsView',{title:"All Events",eventview:doc,isLogedin:req.session.user.username});
 	}).sort({date:'ascending'});
 });
  
