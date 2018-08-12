@@ -5,7 +5,6 @@ var path=require("path");
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var bcrypt = require('bcrypt');
-var fs=require('fs');
 var app = express();
 var port = 3000;
 
@@ -32,7 +31,6 @@ var userSchema=new mongoose.Schema({
 var Event = mongoose.model("Event", eventSchema);
 var User=mongoose.model("User",userSchema);
 
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( express.static( "public" ) );
@@ -41,7 +39,7 @@ app.use(session({secret: 'keyboard cat',saveUninitialized: true, resave: true,})
 
 app.set('views',path.join(__dirname,'views'));
 app.set('view engine','ejs');
-
+//-------------------------------------------------------------------------
 //Posting form with text input and file upload
 app.post("/addevent", (req, res) => {
 	var form = new formidable.IncomingForm();
@@ -50,7 +48,7 @@ app.post("/addevent", (req, res) => {
 		var formdata={	nameofevent:fields.nameofevent,
 						place:fields.place,
 						date:fields.date,
-						image:fields.image,
+						image:req.session.user.username+files.image.name,
 						comments:fields.comments,
 						rules:fields.rules,
 						email:req.session.user.email
@@ -65,8 +63,9 @@ app.post("/addevent", (req, res) => {
 		});	
 	});
     form.on('fileBegin', function (name, file){
-        file.path = __dirname + '/uploads/' + file.name;
+		file.path = __dirname + '/public/uploads/' +req.session.user.username+file.name;
     });
+
     form.on('file', function (name, file){
         console.log('Uploaded ' + file.name);
     });
@@ -85,6 +84,7 @@ app.post("/signup", (req, res) => {
 				userData.save()
 					.then(item => {	
 					req.session.user = req.body;
+					req.session.logoutoption="Logout";
 					res.redirect('/');
 					})
 					.catch(err => {
@@ -96,11 +96,13 @@ app.post("/signup", (req, res) => {
 });
 
 app.post("/login", (req, res) => {	
+	console.log("COMON="+req.body);
 	// find each person with a last name matching 'Ghost', selecting the `name` and `occupation` fields
 	User.findOne({ 'email': req.body.email}, function (err, user) {
 	  if (err) throw err;
 		if(user!=null){
 			req.session.user=user;
+			req.session.logoutoption="Logout";
 			console.log("Email Found! "+req.session.user);
 			bcrypt.compare(req.body.password, user.password, function(err, res2) {
 				if(res2) {
@@ -118,6 +120,20 @@ app.post("/login", (req, res) => {
 	});
 });
 
+app.post("/searchplace", (req, res) => {	
+	Event.find({'place':req.body.place},function(err,doc){
+		if(err){
+			console.log("ERROR")
+		}
+		res.render('eventsView',{title:"Events", 
+								eventview:doc, 
+								isLogedin:req.session.user.username,
+								logoutoption:req.session.logoutoption, 
+								header:"Events at "+req.body.place});
+	}).sort({date:'ascending'});	
+});
+
+//-----------------------------------------------------------------
 app.get("/eventcreation", (req, res) => {
 	if(req.session.user==null || req.session.user.username=="Login/Signup"){
 		res.render('login',{});
@@ -138,16 +154,27 @@ app.get("/signup", (req, res) => {
 
 app.get("/", (req, res) => {
 	if(req.session.user==null){
+		req.session.logoutoption="";
 		req.session.user={username:"Login/Signup",email:"",password:""}
 	}
 	Event.find({},function(err,doc){
 		if(err){
 			console.log("ERROR")
 		}
-		res.render('eventsView',{title:"All Events",eventview:doc,isLogedin:req.session.user.username});
+		res.render('eventsView',{title:"Events", 
+								eventview:doc, 
+								isLogedin:req.session.user.username,
+								logoutoption:req.session.logoutoption, 
+								header:"All events"});
 	}).sort({date:'ascending'});
 });
- 
+
+app.get("/logout", (req, res) => {
+	req.session.logoutoption="";
+	req.session.user=null;
+	res.redirect('/');
+});
+
 app.listen(port, () => {
  	console.log("Server listening on port " + port);
 });

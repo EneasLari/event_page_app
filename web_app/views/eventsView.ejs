@@ -19,15 +19,24 @@
 	   	<div class="collapse navbar-collapse" id="navbarTogglerDemo03">
 		    <ul class="navbar-nav mr-auto">
 		      <li class="nav-item active">
-		        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+		        <a class="nav-link " href="/">Home <span class="sr-only">(current)</span></a>
 		      </li>
 		      <li class="nav-item active">
 		        <a class="nav-link" href="/eventcreation">CreateEvent <span class="sr-only">(current)</span></a>
 		      </li>
-		    </ul>	   		
+		    </ul>
+		    <form class="form-inline my-2 my-lg-0" method="post" action="/searchplace">
+		      <input class="form-control mr-sm-2"  type="search" placeholder="Place..."  name="place">
+		      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+		    </form>	 
+		    <ul class="navbar-nav my-2 my-lg-0">
+		      <li class="nav-item active">
+		        <a class="nav-link " href="/logout"><%=logoutoption%> <span class="sr-only">(current)</span></a>
+		      </li>
+		    </ul>  		
 	   	</div>
 	</nav>
-	<h1 class="text-center" style="margin-top: 50px">Events to your place</h1>	 
+	<h1 class="text-center" style="margin-top: 50px"><%=header%></h1>	 
     <% eventview.forEach(function(event) { %>
 		<div class="container">	
 			<div class="row" style="margin-bottom: 7px">
@@ -35,7 +44,7 @@
 				<div class="col-md-8">
 					<div class="card mb-3">
 					  <div style="width: 100%; height: 300px; overflow: hidden;">		
-					  	<img class="card-img-top" src="cat.png"  alt="Card image cap">
+					  	<img class="card-img-top" src="/uploads/<%=event.image%>"  alt="Card image cap">
 					  </div>
 					  <div class="card-body text-justify">
 					    <h5 class="card-title"><%= event.nameofevent %></h5>
