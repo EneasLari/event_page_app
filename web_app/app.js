@@ -5,6 +5,7 @@ var path=require("path");
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var bcrypt = require('bcrypt');
+var url = require('url');
 var app = express();
 var port = 3000;
 
@@ -85,6 +86,7 @@ app.post("/signup", (req, res) => {
 					.then(item => {	
 					req.session.user = req.body;
 					req.session.logoutoption="Logout";
+					req.session.myeventsoption="My events";
 					res.redirect('/');
 					})
 					.catch(err => {
@@ -96,14 +98,13 @@ app.post("/signup", (req, res) => {
 });
 
 app.post("/login", (req, res) => {	
-	console.log("COMON="+req.body);
 	// find each person with a last name matching 'Ghost', selecting the `name` and `occupation` fields
 	User.findOne({ 'email': req.body.email}, function (err, user) {
 	  if (err) throw err;
 		if(user!=null){
 			req.session.user=user;
 			req.session.logoutoption="Logout";
-			console.log("Email Found! "+req.session.user);
+			req.session.myeventsoption="My events";
 			bcrypt.compare(req.body.password, user.password, function(err, res2) {
 				if(res2) {
 				   	console.log("Correct Password!");
@@ -129,7 +130,8 @@ app.post("/searchplace", (req, res) => {
 								eventview:doc, 
 								isLogedin:req.session.user.username,
 								logoutoption:req.session.logoutoption, 
-								header:"Events at "+req.body.place});
+								header:"Events at "+req.body.place,
+								myeventsoption:req.session.myeventsoption});
 	}).sort({date:'ascending'});	
 });
 
@@ -145,6 +147,7 @@ app.get("/eventcreation", (req, res) => {
 app.get("/login", (req, res) => {
 	 res.render('login',{});
 });
+
 app.get("/signup", (req, res) => {
 	if(req.session.fail==null){
 		req.session.fail=""
@@ -155,6 +158,7 @@ app.get("/signup", (req, res) => {
 app.get("/", (req, res) => {
 	if(req.session.user==null){
 		req.session.logoutoption="";
+		req.session.myeventsoption="";
 		req.session.user={username:"Login/Signup",email:"",password:""}
 	}
 	Event.find({},function(err,doc){
@@ -165,14 +169,45 @@ app.get("/", (req, res) => {
 								eventview:doc, 
 								isLogedin:req.session.user.username,
 								logoutoption:req.session.logoutoption, 
-								header:"All events"});
+								header:"All events",
+								myeventsoption:req.session.myeventsoption});
 	}).sort({date:'ascending'});
 });
 
 app.get("/logout", (req, res) => {
 	req.session.logoutoption="";
 	req.session.user=null;
+	req.session.myeventsoption="";
 	res.redirect('/');
+});
+
+app.get("/myevents", (req, res) => {
+	Event.find({'email':req.session.user.email},function(err,doc){
+		if(err){
+			console.log("ERROR")
+		}
+		res.render('eventsView',{title:"Events", 
+								eventview:doc, 
+								isLogedin:req.session.user.username,
+								logoutoption:req.session.logoutoption, 
+								header:"My events: "+req.session.user.username,
+								myeventsoption:req.session.myeventsoption});
+	}).sort({date:'ascending'});
+});
+
+app.get("/eventbyid", (req, res) => {
+	var q = url.parse(req.url, true).query;
+	Event.findOne({'_id':q.eventid},function(err,doc){
+		if(err){
+			console.log("ERROR")
+		}
+		res.render('eventbyid',{title:doc.nameofevent, 
+								eventview:doc, 
+								isLogedin:req.session.user.username,
+								logoutoption:req.session.logoutoption, 
+								header:doc.nameofevent,
+								myeventsoption:req.session.myeventsoption});
+	})	
 });
 
 app.listen(port, () => {

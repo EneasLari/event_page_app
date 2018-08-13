@@ -42,29 +42,27 @@
 	   	</div>
 	</nav>
 	<h1 class="text-center" style="margin-top: 50px"><%=header%></h1>
-    <% eventview.forEach(function(event) { %>
 		<div class="container">	
 			<div class="row" style="margin-bottom: 7px">
-				<div class="col-md-2"></div>
-				<div class="col-md-8">
+				<div class="col-md-12">
 					<div class="card mb-3">
 					  <div style="width: 100%; height: 300px; overflow: hidden;">		
-					  	<img class="card-img-top" src="/uploads/<%=event.image%>"  alt="Card image cap">
+					  	<img class="card-img-top" src="/uploads/<%=eventview.image%>"  alt="Card image cap">
 					  </div>
 					  <div class="card-body text-justify">
-					    <h5 class="card-title"><%= event.nameofevent %></h5>
-					    <p class="card-text"><%= event.comments %></p>
-					    <h6 >Place: <%= event.place  %></h6> 
-      					<h6 >Date: <%= event.date  %></h6>
+					    <h5 class="card-title"><%= eventview.nameofevent %></h5>
+					    <p class="card-text"><%= eventview.comments %></p>
 					    <hr>
-					    <a href="eventbyid/?eventid=<%= event._id%>" class="btn btn-primary">More...</a>			    
+					    <p class="card-text"><%= eventview.rules %></p>
+					    <hr>
+					    <h6 >Place: <%= eventview.place  %></h6> 
+      					<h6 >Date: <%= eventview.date  %></h6>
+					    		    
 					  </div> 									  
 					</div>				
 				</div>
-				<div class="col-md-2"></div>
 			</div>
 		</div> 	
-	<% }); %>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
