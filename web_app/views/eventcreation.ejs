@@ -1,25 +1,94 @@
 <!DOCTYPE html>
 <html>
  <head>
- <title><%=title%></title>
+     <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="favicon.ico">
+
+   	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+ 	<title><%=title%></title>
  </head>
  
- <body>
- 	<h1><%=headline%></h1>
-	<form method="post" action="/addevent" enctype="multipart/form-data">
-		<label>Name of event</label><br>
-		<input type="text" name="nameofevent" placeholder="Enter name of event..." required><br>
-		<label>Place</label><br>
-		<input type="text" name="place" placeholder="Enter place..." required><br>
-		<label>Date</label><br>
-		<input type="date" name="date" required><br>
-		<label>Image</label><br>
-		<input type="file" name="image" multiple><br>
-		<label>Description</label><br>
-		<textarea rows="10" cols="50" name="comments" required></textarea><br>	
-		<label>Rules(Put "," between rules)</label><br>
-		<textarea rows="10" cols="50" name="rules" required></textarea><br>	
-		<input type="submit" value="Add Event">	
-	</form>
+ <body >
+ 	<div id="root"></div>
+
+    <script type="text/babel">
+      class Container extends React.Component {     	  
+          render() {
+              return (           		
+				 	<div className="container">
+				 		<div className="text-center"><img className="mb-4" src="bootstrap-solid.svg"  alt="" width="72" height="72"/></div>
+				 		
+				 		<h1 className="text-center"><%=headline%></h1>
+						<form method="post" action="/addevent" enctype="multipart/form-data">
+
+							<div className="form-group row">
+								<label className="col-sm-2 col-form-label">Name of event</label>
+								<div className="col-sm-10">
+									<input className="form-control" type="text" name="nameofevent" placeholder="Enter name of event..." required/>
+								</div>
+							</div>
+
+							<div className="form-group row">
+								<label className="col-sm-2 col-form-label">Place</label>
+								<div className="col-sm-10">
+									<input className="form-control " type="text" name="place" placeholder="Enter place..." required/>
+								</div>
+							</div>
+							
+							<div className="form-group row">
+								<label className="col-sm-2 col-form-label">Date</label>
+									<div className="col-sm-10">
+								<input type="date" name="date" required/></div>
+							</div>	
+								
+
+							<div className="form-group row">
+								<label className="col-sm-2 col-form-label">Image</label>
+								<div className="col-sm-10">
+								<input  type="file" name="image" multiple/></div>
+							</div>	
+								
+
+							<div className="form-group row">
+								<label className="col-sm-2 col-form-label">Description</label>
+								<div className="col-sm-10">
+								<textarea className="form-control " rows="10" cols="50" name="comments" required></textarea></div>
+							</div>
+								
+
+							<div className="form-group row">
+								<label className="col-sm-2 col-form-label">Rules(Put "," between rules)</label>
+								<div className="col-sm-10">
+								<textarea className="form-control " rows="10" cols="50" name="rules" required></textarea></div>
+							</div>	
+									
+
+							<div className="row">
+								<div className="col-sm-2"></div>
+								<div className="col-sm-10">
+									<input type="submit" value="Add Event"/>
+									<p className="mt-5 mb-3 text-muted text-center">&copy; 2017-2018</p>
+								</div>	
+							</div>					
+						</form>
+					</div>                
+              );
+          }
+      }
+      ReactDOM.render(
+          <div><Container /></div>,
+          document.getElementById('root')
+      );
+    </script> 	
  </body>
 </html>
